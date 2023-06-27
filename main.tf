@@ -25,3 +25,12 @@ resource "aws_vpc" "example" {
     Name = "example"
   }
 }
+
+resource "aws_subnet" "example" {
+  vpc_id     = aws_vpc.example.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "example_subnet"
+  }
+}
