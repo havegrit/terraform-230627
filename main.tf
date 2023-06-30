@@ -111,14 +111,50 @@ resource "aws_security_group" "sg_1" {
   }
 }
 
-resource "aws_instance" "ec2_1" {
-  ami                         = "ami-04b3f91ebd5bc4f6d"
-  instance_type               = "t2.micro"
-  subnet_id                   = aws_subnet.subnet_1.id
-  vpc_security_group_ids      = [aws_security_group.sg_1.id]
-  associate_public_ip_address = true
+#resource "aws_instance" "ec2_1" {
+#  ami                         = "ami-04b3f91ebd5bc4f6d"
+#  instance_type               = "t2.micro"
+#  subnet_id                   = aws_subnet.subnet_1.id
+#  vpc_security_group_ids      = [aws_security_group.sg_1.id]
+#  associate_public_ip_address = true
+#
+#  tags = {
+#    Name = "${var.prefix}-ec2-1"
+#  }
+#}
+
+resource "aws_s3_bucket" "bucket_1" {
+  bucket = "${var.prefix}-shin-230630"
 
   tags = {
-    Name = "${var.prefix}-ec2-1"
+    Name = "${var.prefix}-shin-1"
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "public_access_block" {
+  bucket = aws_s3_bucket.bucket_1.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "s3_policy" {
+  bucket = aws_s3_bucket.bucket_1.id
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": "${aws_s3_bucket.bucket_1.arn}/*"
+    }
+  ]
+}
+EOF
 }
